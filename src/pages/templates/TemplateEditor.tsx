@@ -268,7 +268,7 @@ const TemplateSection: React.FC<{
           </div>
           {section.type === 'body' && (
             <p className="mt-1 text-xs text-gray-500">
-              Use {{1}}, {{2}}, etc. for variables. Maximum 1024 characters.
+              Use {'{{1}}'}, {'{{2}}'}, etc. for variables. Maximum 1024 characters.
             </p>
           )}
           {section.type === 'footer' && (
@@ -698,7 +698,7 @@ const TemplateEditor: React.FC = () => {
                   <span className="font-medium text-gray-900">Structure:</span> Templates can include a header, body, footer, and buttons.
                 </p>
                 <p>
-                  <span className="font-medium text-gray-900">Variables:</span> Use {{1}}, {{2}}, etc. to personalize messages.
+                  <span className="font-medium text-gray-900">Variables:</span> Use {'{{1}}'}, {'{{2}}'}, etc. to personalize messages.
                 </p>
                 <p>
                   <span className="font-medium text-gray-900">Approval:</span> All templates must be approved by WhatsApp before use.
