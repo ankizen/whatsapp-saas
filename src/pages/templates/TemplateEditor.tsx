@@ -272,7 +272,7 @@ const TemplateSection: React.FC<{
           </div>
           {section.type === 'body' && (
             <p className="mt-1 text-xs text-gray-500">
-              Use {'{{1}}'}, {'{{2}}'}, etc. for variables. Maximum 1024 characters.
+              Use &#123;&#123;1&#125;&#125;, &#123;&#123;2&#125;&#125;, etc. for variables. Maximum 1024 characters.
             </p>
           )}
           {section.type === 'footer' && (
@@ -342,7 +342,7 @@ const TemplateSection: React.FC<{
               </div>
               <p className="mt-1 text-xs text-gray-500">
                 {section.urlType === 'dynamic' 
-                  ? 'Dynamic URLs can include variables like {{1}}, {{2}}, etc.'
+                  ? 'Dynamic URLs can include variables like &#123;&#123;1&#125;&#125;, &#123;&#123;2&#125;&#125;, etc.'
                   : 'Static URLs remain the same for all messages'}
               </p>
             </div>
@@ -387,13 +387,13 @@ const TemplateSection: React.FC<{
                     type="url"
                     id={`button-url-${index}-${buttonIndex}`}
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm"
-                    placeholder={section.urlType === 'dynamic' ? 'https://example.com/{{1}}' : 'https://example.com'}
+                    placeholder={section.urlType === 'dynamic' ? 'https://example.com/&#123;&#123;1&#125;&#125;' : 'https://example.com'}
                     value={button.url || ''}
                     onChange={(e) => handleButtonUrlChange(buttonIndex, e.target.value)}
                   />
                   {section.urlType === 'dynamic' && (
                     <p className="mt-1 text-xs text-gray-500">
-                      Use {{1}}, {{2}}, etc. to include variables in the URL
+                      Use &#123;&#123;1&#125;&#125;, &#123;&#123;2&#125;&#125;, etc. to include variables in the URL
                     </p>
                   )}
                 </div>
@@ -698,14 +698,15 @@ const TemplateEditor: React.FC = () => {
                       )}
                       {section.type === 'header' && section.format !== 'text' && (
                         <div className="mb-2 h-40 w-full rounded-lg bg-gray-200 flex items-center justify-center">
-                          {section.format === 'image' && <Image className="h-8 w-8 text-gray-400" />}
+                          {section.format === '
+image' && <Image className="h-8 w-8 text-gray-400" />}
                           {section.format === 'video' && <Video className="h-8 w-8 text-gray-400" />}
                           {section.format === 'document' && <File className="h-8 w-8 text-gray-400" />}
                         </div>
                       )}
                       {section.type === 'body' && (
                         <div className="whitespace-pre-wrap text-gray-800">
-                          {section.text || 'Body text goes here. Add {{1}} variables if needed.'}
+                          {section.text || 'Body text goes here. Add &#123;&#123;1&#125;&#125; variables if needed.'}
                         </div>
                       )}
                       {section.type === 'footer' && (
@@ -742,7 +743,7 @@ const TemplateEditor: React.FC = () => {
                   <span className="font-medium text-gray-900">Structure:</span> Templates can include a header, body, footer, and buttons.
                 </p>
                 <p>
-                  <span className="font-medium text-gray-900">Variables:</span> Use {'{{1}}'}, {'{{2}}'}, etc. to personalize messages.
+                  <span className="font-medium text-gray-900">Variables:</span> Use &#123;&#123;1&#125;&#125;, &#123;&#123;2&#125;&#125;, etc. to personalize messages.
                 </p>
                 <p>
                   <span className="font-medium text-gray-900">Approval:</span> All templates must be approved by WhatsApp before use.
