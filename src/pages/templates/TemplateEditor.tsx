@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FileEdit, Plus, Trash2, Image, Video, Document, Phone, Globe, Eye, Save } from 'lucide-react';
+import { FileEdit, Plus, Trash2, Image, Video, Tent as Document, Phone, Globe, Eye, Save } from 'lucide-react';
 
 type ButtonType = 'URL' | 'PHONE_NUMBER';
 type HeaderType = 'TEXT' | 'IMAGE' | 'VIDEO' | 'DOCUMENT' | 'NONE';
