@@ -327,7 +327,7 @@ const TemplateEditor: React.FC = () => {
                     />
                   </div>
                   <p className="mt-1 text-xs text-gray-500">
-                    Use {{1}}, {{2}}, etc. for variables that will be replaced with actual values
+                    Use {`{{1}}`}, {`{{2}}`}, etc. for variables that will be replaced with actual values
                   </p>
                 </div>
 
@@ -420,7 +420,7 @@ const TemplateEditor: React.FC = () => {
                                 placeholder="https://example.com/{{1}}"
                               />
                               <p className="mt-1 text-xs text-gray-500">
-                                You can use {{1}} for dynamic URLs
+                                You can use {`{{1}}`} for dynamic URLs
                               </p>
                             </div>
                           )}
