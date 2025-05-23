@@ -14,12 +14,12 @@ import {
   MessageSquare 
 } from 'lucide-react';
 
-// Template type
 interface TemplateContent {
   type: 'header' | 'body' | 'footer' | 'buttons';
   text?: string;
   format?: 'text' | 'image' | 'video' | 'document';
   buttonType?: 'quick_reply' | 'url';
+  urlType?: 'static' | 'dynamic';
   buttons?: Array<{ text: string; url?: string }>;
 }
 
@@ -32,7 +32,6 @@ interface Template {
   content: TemplateContent[];
 }
 
-// Mock existing template data
 const mockTemplates: Record<string, Template> = {
   '1': {
     id: '1',
@@ -56,7 +55,6 @@ const mockTemplates: Record<string, Template> = {
   }
 };
 
-// Helper component for template section
 const TemplateSection: React.FC<{
   section: TemplateContent;
   index: number;
@@ -99,6 +97,12 @@ const TemplateSection: React.FC<{
           })) 
         : []
     });
+  };
+
+  const handleUrlTypeChange = (urlType: 'static' | 'dynamic') => {
+    if (section.type === 'buttons' && section.buttonType === 'url') {
+      updateSection(index, { ...section, urlType });
+    }
   };
   
   const addButton = () => {
@@ -308,6 +312,41 @@ const TemplateSection: React.FC<{
               </button>
             </div>
           </div>
+
+          {section.buttonType === 'url' && (
+            <div className="mb-4">
+              <span className="block text-sm font-medium text-gray-700">URL Type</span>
+              <div className="mt-2 flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => handleUrlTypeChange('static')}
+                  className={`rounded-md px-3 py-1.5 text-sm ${
+                    section.urlType === 'static' 
+                      ? 'bg-emerald-100 text-emerald-700' 
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  Static URL
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleUrlTypeChange('dynamic')}
+                  className={`rounded-md px-3 py-1.5 text-sm ${
+                    section.urlType === 'dynamic' 
+                      ? 'bg-emerald-100 text-emerald-700' 
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  Dynamic URL
+                </button>
+              </div>
+              <p className="mt-1 text-xs text-gray-500">
+                {section.urlType === 'dynamic' 
+                  ? 'Dynamic URLs can include variables like {{1}}, {{2}}, etc.'
+                  : 'Static URLs remain the same for all messages'}
+              </p>
+            </div>
+          )}
           
           {section.buttons && section.buttons.map((button, buttonIndex) => (
             <div key={buttonIndex} className="mb-3 rounded border border-gray-200 p-3">
@@ -342,16 +381,21 @@ const TemplateSection: React.FC<{
               {section.buttonType === 'url' && (
                 <div className="mt-2">
                   <label htmlFor={`button-url-${index}-${buttonIndex}`} className="block text-sm font-medium text-gray-700">
-                    URL
+                    URL {section.urlType === 'dynamic' && '(supports variables)'}
                   </label>
                   <input
                     type="url"
                     id={`button-url-${index}-${buttonIndex}`}
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm"
-                    placeholder="https://example.com"
+                    placeholder={section.urlType === 'dynamic' ? 'https://example.com/{{1}}' : 'https://example.com'}
                     value={button.url || ''}
                     onChange={(e) => handleButtonUrlChange(buttonIndex, e.target.value)}
                   />
+                  {section.urlType === 'dynamic' && (
+                    <p className="mt-1 text-xs text-gray-500">
+                      Use {{1}}, {{2}}, etc. to include variables in the URL
+                    </p>
+                  )}
                 </div>
               )}
             </div>
