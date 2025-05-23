@@ -14,13 +14,17 @@ import {
   MessageSquare 
 } from 'lucide-react';
 
-// Template type
 interface TemplateContent {
   type: 'header' | 'body' | 'footer' | 'buttons';
   text?: string;
   format?: 'text' | 'image' | 'video' | 'document';
-  buttonType?: 'quick_reply' | 'url';
-  buttons?: Array<{ text: string; url?: string }>;
+  buttonType?: 'quick_reply' | 'static_url' | 'dynamic_url';
+  buttons?: Array<{ 
+    text: string; 
+    url?: string;
+    dynamicUrlPattern?: string;
+    dynamicUrlExample?: string;
+  }>;
 }
 
 interface Template {
@@ -32,7 +36,6 @@ interface Template {
   content: TemplateContent[];
 }
 
-// Mock existing template data
 const mockTemplates: Record<string, Template> = {
   '1': {
     id: '1',
@@ -56,7 +59,6 @@ const mockTemplates: Record<string, Template> = {
   }
 };
 
-// Helper component for template section
 const TemplateSection: React.FC<{
   section: TemplateContent;
   index: number;
@@ -87,25 +89,47 @@ const TemplateSection: React.FC<{
       updateSection(index, { ...section, buttons: newButtons });
     }
   };
-  
-  const handleButtonTypeChange = (buttonType: 'quick_reply' | 'url') => {
+
+  const handleButtonTypeChange = (buttonType: 'quick_reply' | 'static_url' | 'dynamic_url') => {
     updateSection(index, { 
       ...section, 
-      buttonType, 
+      buttonType,
       buttons: section.type === 'buttons' && section.buttons 
         ? section.buttons.map(button => ({ 
-            text: button.text, 
-            ...(buttonType === 'url' ? { url: button.url || '' } : {}) 
-          })) 
+            text: button.text,
+            ...(buttonType === 'static_url' ? { url: button.url || '' } : {}),
+            ...(buttonType === 'dynamic_url' ? { 
+              dynamicUrlPattern: button.dynamicUrlPattern || 'https://example.com/{{1}}',
+              dynamicUrlExample: button.dynamicUrlExample || 'https://example.com/123'
+            } : {})
+          }))
         : []
     });
+  };
+
+  const handleButtonUrlPatternChange = (buttonIndex: number, pattern: string) => {
+    if (section.type === 'buttons' && section.buttons) {
+      const newButtons = [...section.buttons];
+      newButtons[buttonIndex] = { 
+        ...newButtons[buttonIndex], 
+        dynamicUrlPattern: pattern,
+        dynamicUrlExample: pattern.replace(/{{[1-9]}}/g, '123')
+      };
+      updateSection(index, { ...section, buttons: newButtons });
+    }
   };
   
   const addButton = () => {
     if (section.type === 'buttons') {
       const newButtons = [...(section.buttons || [])];
-      if (section.buttonType === 'url') {
+      if (section.buttonType === 'static_url') {
         newButtons.push({ text: '', url: '' });
+      } else if (section.buttonType === 'dynamic_url') {
+        newButtons.push({ 
+          text: '', 
+          dynamicUrlPattern: 'https://example.com/{{1}}',
+          dynamicUrlExample: 'https://example.com/123'
+        });
       } else {
         newButtons.push({ text: '' });
       }
@@ -135,7 +159,7 @@ const TemplateSection: React.FC<{
           )}
           {section.type === 'buttons' && section.buttonType && (
             <span className="ml-2 rounded bg-purple-100 px-2.5 py-0.5 text-xs font-medium text-purple-800 capitalize">
-              {section.buttonType === 'quick_reply' ? 'Quick Reply' : 'URL'}
+              {section.buttonType === 'quick_reply' ? 'Quick Reply' : section.buttonType === 'static_url' ? 'Static URL' : 'Dynamic URL'}
             </span>
           )}
         </div>
@@ -283,11 +307,11 @@ const TemplateSection: React.FC<{
         <div>
           <div className="mb-4">
             <span className="block text-sm font-medium text-gray-700">Button Type</span>
-            <div className="mt-2 flex gap-3">
+            <div className="mt-2 flex flex-wrap gap-3">
               <button
                 type="button"
                 onClick={() => handleButtonTypeChange('quick_reply')}
-                className={`rounded-md px-3 py-1.5 text-sm ${
+                className={`flex items-center rounded-md px-3 py-1.5 text-sm ${
                   section.buttonType === 'quick_reply' 
                     ? 'bg-emerald-100 text-emerald-700' 
                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
@@ -297,16 +321,32 @@ const TemplateSection: React.FC<{
               </button>
               <button
                 type="button"
-                onClick={() => handleButtonTypeChange('url')}
-                className={`rounded-md px-3 py-1.5 text-sm ${
-                  section.buttonType === 'url' 
+                onClick={() => handleButtonTypeChange('static_url')}
+                className={`flex items-center rounded-md px-3 py-1.5 text-sm ${
+                  section.buttonType === 'static_url' 
                     ? 'bg-emerald-100 text-emerald-700' 
                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                 }`}
               >
-                URL Button
+                Static URL
+              </button>
+              <button
+                type="button"
+                onClick={() => handleButtonTypeChange('dynamic_url')}
+                className={`flex items-center rounded-md px-3 py-1.5 text-sm ${
+                  section.buttonType === 'dynamic_url' 
+                    ? 'bg-emerald-100 text-emerald-700' 
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                Dynamic URL
               </button>
             </div>
+            {section.buttonType === 'dynamic_url' && (
+              <p className="mt-2 text-xs text-gray-500">
+                Dynamic URLs can include variables like {'{{1}}'} that will be replaced with actual values when sending messages.
+              </p>
+            )}
           </div>
           
           {section.buttons && section.buttons.map((button, buttonIndex) => (
@@ -339,10 +379,10 @@ const TemplateSection: React.FC<{
                 <p className="mt-1 text-xs text-gray-500">Maximum 20 characters</p>
               </div>
               
-              {section.buttonType === 'url' && (
+              {section.buttonType === 'static_url' && (
                 <div className="mt-2">
                   <label htmlFor={`button-url-${index}-${buttonIndex}`} className="block text-sm font-medium text-gray-700">
-                    URL
+                    Static URL
                   </label>
                   <input
                     type="url"
@@ -352,6 +392,38 @@ const TemplateSection: React.FC<{
                     value={button.url || ''}
                     onChange={(e) => handleButtonUrlChange(buttonIndex, e.target.value)}
                   />
+                  <p className="mt-1 text-xs text-gray-500">
+                    Enter a fixed URL that will be the same for all recipients
+                  </p>
+                </div>
+              )}
+
+              {section.buttonType === 'dynamic_url' && (
+                <div className="mt-2">
+                  <label htmlFor={`button-url-pattern-${index}-${buttonIndex}`} className="block text-sm font-medium text-gray-700">
+                    Dynamic URL Pattern
+                  </label>
+                  <input
+                    type="text"
+                    id={`button-url-pattern-${index}-${buttonIndex}`}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm"
+                    placeholder="https://example.com/{{1}}"
+                    value={button.dynamicUrlPattern || ''}
+                    onChange={(e) => handleButtonUrlPatternChange(buttonIndex, e.target.value)}
+                  />
+                  <p className="mt-1 text-xs text-gray-500">
+                    Use {'{{1}}'}, {'{{2}}'}, etc. for variables that will be replaced
+                  </p>
+                  {button.dynamicUrlPattern && (
+                    <div className="mt-2">
+                      <label className="block text-sm font-medium text-gray-700">
+                        Example URL
+                      </label>
+                      <div className="mt-1 rounded-md bg-gray-50 px-3 py-2 text-sm text-gray-600">
+                        {button.dynamicUrlExample || button.dynamicUrlPattern.replace(/{{[1-9]}}/g, '123')}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
